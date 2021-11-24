@@ -27,7 +27,14 @@ import (
 	"github.com/cloudreve/Cloudreve/v3/pkg/filesystem/response"
 	"github.com/cloudreve/Cloudreve/v3/pkg/request"
 	"github.com/cloudreve/Cloudreve/v3/pkg/serializer"
+	"pkg/filesystem/driver/s3/doge.go"
 )
+
+
+
+
+
+
 
 // Driver 适配器模板
 type Driver struct {
@@ -49,6 +56,10 @@ type MetaData struct {
 }
 
 // InitS3Client 初始化S3会话
+
+
+
+
 func (handler *Driver) InitS3Client() error {
 	if handler.Policy == nil {
 		return errors.New("存储策略为空")
@@ -56,10 +67,21 @@ func (handler *Driver) InitS3Client() error {
 
 	if handler.svc == nil {
 		// 初始化会话
+		
+		// 这段代码本质上就是调用 DogeCloud API 获取临时密钥，你也可以自己实现：
+// 该 API 参考文档： https://docs.dogecloud.com/oss/api-tmp-token
+
+		prof := make(map[string]interface{})
+		prof["channel"] = "OSS_FULL"
+		prof["scopes"] = "*"
+		r := DogeCloudAPI("/auth/tmp_token.json", prof, true)
+		data := r["data"].(map[string]interface{})
+		creds := data["Credentials"].(map[string]interface{})
+		
 		sess, err := session.NewSession(&aws.Config{
-			Credentials:      credentials.NewStaticCredentials(handler.Policy.AccessKey, handler.Policy.SecretKey, ""),
-			Endpoint:         &handler.Policy.Server,
-			Region:           &handler.Policy.OptionsSerialized.Region,
+			Credentials:      credentials.NewStaticCredentials(creds["accessKeyId"].(string), creds["secretAccessKey"].(string), creds["sessionToken"].(string)),
+			Endpoint:         aws.String("https://cos.ap-shanghai.myqcloud.com")r,
+			Region:           aws.String("automatic"),
 			S3ForcePathStyle: aws.Bool(true),
 		})
 
