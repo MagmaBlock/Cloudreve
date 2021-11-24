@@ -12,6 +12,12 @@ import (
     "strings"
     "io/ioutil"
 //    "reflect"
+    
+    model "github.com/cloudreve/Cloudreve/v3/models"
+	"github.com/cloudreve/Cloudreve/v3/pkg/filesystem/fsctx"
+	"github.com/cloudreve/Cloudreve/v3/pkg/filesystem/response"
+	"github.com/cloudreve/Cloudreve/v3/pkg/request"
+	"github.com/cloudreve/Cloudreve/v3/pkg/serializer"
 )
 
 // 调用 DogeCloud 的 API
@@ -22,8 +28,8 @@ import (
 func DogeCloudAPI(apiPath string, data map[string]interface{}, jsonMode bool) (ret map[string]interface{}) {
 
     // 这里替换为你的 DogeCloud 永久 AccessKey 和 SecretKey，可在用户中心 - 密钥管理中查看
-    AccessKey := "你的AccessKey"
-    SecretKey := "你的SecretKey"
+    AccessKey := handler.Policy.AccessKey
+    SecretKey := handler.Policy.SecretKey
 
     body := ""
     mime := ""
